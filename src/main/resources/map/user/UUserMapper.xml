@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.user.UUserMapper">
+
+    <resultMap id="UUserMap" type="com.L.entity.user.UUser">
+        <id property="uId" column="uId"></id>
+        <result property="uName" column="uName"></result>
+        <result property="uPassword" column="uPassword"></result>
+        <result property="uRoleNo" column="uRoleNo"></result>
+
+
+        <association property="rRole" javaType="com.L.entity.user.RRole">
+            <result property="rId" column="rId"></result>
+            <result property="rRole" column="rRole"></result>
+        </association>
+
+
+        <association property="aUser" javaType="com.L.entity.user.AUser">
+            <id property="aId" column="aId"></id>
+            <result property="auid" column="auid"></result>
+            <result property="aName" column="aName"></result>
+            <result property="aDepartmentNo" column="aDepartmentNo"></result>
+            <result property="aPhone" column="aPhone"></result>
+            <result property="aEmail" column="aEmail"></result>
+            <result property="aQQ" column="aQQ"></result>
+            <result property="aNotes" column="aNotes"></result>
+        </association>
+
+        <association property="sUser" javaType="com.L.entity.user.SUser">
+            <id property="sId" column="sId"></id>
+            <result property="suid" column="suid"></result>
+            <result property="sNo" column="sNo"></result>
+            <result property="sName" column="sName"></result>
+            <result property="sSex" column="sSex"></result>
+            <result property="sDate" column="sDate"></result>
+            <result property="sCollegeNo" column="sCollegeNo"></result>
+            <result property="sPhone" column="sPhone"></result>
+            <result property="sEmail" column="sEmail"></result>
+            <result property="sQQ" column="sQQ"></result>
+            <result property="sNotes" column="sNotes"></result>
+        </association>
+        <association property="svUser" javaType="com.L.entity.user.SVUser">
+            <id property="svId" column="svId"></id>
+            <result property="svuid" column="svuid"></result>
+            <result property="svName" column="svName"></result>
+            <result property="svSex" column="svSex"></result>
+
+            <result property="svTitle" column="svTitle"></result>
+            <result property="svCollegeNo" column="svCollegeNo"></result>
+            <result property="svLevel" column="svLevel"></result>
+            <result property="svPhone" column="svPhone"></result>
+            <result property="svEmail" column="svEmail"></result>
+            <result property="svQQ" column="svQQ"></result>
+            <result property="svNotes" column="svNotes"></result>
+        </association>
+        <association property="tUser" javaType="com.L.entity.user.TUser">
+            <id property="tId" column="tId"></id>
+            <result property="tuid" column="tuid"></result>
+            <result property="tName" column="tName"></result>
+            <result property="tSex" column="tSex"></result>
+
+            <result property="tTitle" column="tTitle"></result>
+            <result property="tCollegeNo" column="tCollegeNo"></result>
+            <result property="tPhone" column="tPhone"></result>
+            <result property="tEmail" column="tEmail"></result>
+            <result property="tQQ" column="tQQ"></result>
+            <result property="tNotes" column="tNotes"></result>
+        </association>
+
+
+    </resultMap>
+    <resultMap id="ClassStudentMap" type="com.L.entity.classes.ClassStudent">
+        <id property="scId" column="scId"></id>
+        <result property="cIIdsc" column="cIIdsc"></result>
+        <result property="sIdsc" column="sIdsc"></result>
+    </resultMap>
+
+
+
+
+
+    <select id="login" resultMap="UUserMap">
+        select *
+        from u_user,
+             r_role
+        where uName = #{uName}
+          and uPassword = #{uPassword}
+          and u_user.uRoleNo = r_role.rId
+    </select>
+
+    <!--    个人信息查询  是连接查询  -->
+    <select id="UserId" resultMap="UUserMap">
+
+        SELECT *
+        FROM u_user u
+                 LEFT JOIN s_user s ON u.uId = s.suid
+                 LEFT JOIN a_user a ON u.uId = a.auid
+                 LEFT JOIN t_user t ON u.uId = t.tuid
+        WHERE u.uId = #{uId}
+
+    </select>
+    <select id="countRole" resultType="com.L.entity.user.RRole">
+        select r_role.rRole
+        from u_user,
+             r_role
+        where u_user.uRoleNo = r_role.rId
+    </select>
+
+
+    <update id="upUserId" parameterType="map">
+        <!-- 使用 choose、when 和 otherwise 标签结合条件选择要更新的表 -->
+        <choose>
+            <when test="userType == 'SUser'">
+                UPDATE s_user
+                SET sName = #{SName}, sSex = #{SSex}, sDate = #{SDate},
+                sPhone = #{SPhone}, sEmail = #{SEmail}, sQQ = #{SQQ}
+                WHERE suid = #{uId}
+            </when>
+            <when test="userType == 'AUser'">
+                UPDATE a_user
+                SET aName = #{AName}, aPhone = #{APhone}, aEmail = #{AEmail}, aQQ = #{AQQ}
+                WHERE auid = #{uId}
+            </when>
+            <when test="userType == 'TUser'">
+                UPDATE t_user
+                SET tName = #{TName}, tSex = #{TSex},
+                tPhone = #{TPhone}, tEmail = #{TEmail}, tQQ = #{TQQ}
+                WHERE tuid = #{uId}
+            </when>
+            <when test="userType == 'svUser'">
+                UPDATE sv_user
+                SET svName = #{svName}, svSex = #{svSex},
+                svPhone = #{svPhone}, svEmail = #{svEmail}, svQQ = #{svQQ}
+                WHERE svuid = #{uId}
+            </when>
+
+        </choose>
+    </update>
+    <update id="upUserPassword">
+        UPDATE u_user
+        SET uPassword = #{uPassword}
+        WHERE uId = #{uId}
+    </update>
+
+
+</mapper>

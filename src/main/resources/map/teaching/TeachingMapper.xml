@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.teaching.TeachingMapper">
+
+    <resultMap id="teachingMap" type="com.L.entity.teaching.Teaching">
+        <id property="teId" column="teId"></id>
+        <result property="tName" column="tName"></result>
+        <result property="tExpect" column="tExpect"></result>
+        <result property="tContent" column="tContent"></result>
+        <result property="tFile" column="tFile"></result>
+        <result property="tState" column="tState"></result>
+        <result property="tUser" column="tUser"></result>
+
+
+        <association property="fileSava" javaType="com.L.entity.util.File">
+            <result property="fId" column="fId"></result>
+            <result property="fName" column="fName"></result>
+            <result property="fUid" column="fUid"></result>
+            <result property="fPath" column="fPath"></result>
+        </association>
+
+    </resultMap>
+
+
+    <insert id="savaFileTeaching">
+        INSERT INTO file (fName, fUid, fPath)
+        VALUES (#{fName}, #{fUid}, #{fPath})
+    </insert>
+
+    <insert id="savaFileTeachingP" useGeneratedKeys="true" keyProperty="fId">
+        INSERT INTO file (fName, fUid, fPath)
+        VALUES (#{fName}, #{fUid}, #{fPath})
+    </insert>
+
+
+    <insert id="addTeaching">
+
+        INSERT INTO teaching (tName, tExpect, tContent, tFile,tUser)
+        VALUES (#{tName}, #{tExpect}, #{tContent}, (SELECT LAST_INSERT_ID()),#{tUser})
+    </insert>
+
+
+    <delete id="deleteTeaching">
+        DELETE
+        FROM teaching
+        WHERE teId = #{teId}
+
+    </delete>
+
+    <select id="findAllTeaching" resultType="com.L.entity.teaching.Teaching">
+        select teaching.teId, tName, tExpect, tContent,
+        from teaching
+        order by teaching.teId asc
+    </select>
+
+    <select id="countTeaching" resultType="java.lang.Integer">
+        select count(*)
+        from teaching
+    </select>
+    <select id="countTeachingAll" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM teaching
+        WHERE tName LIKE CONCAT('%', #{tName}, '%')  </select>
+
+    <select id="findAllTeachingList" resultMap="teachingMap">
+        select teaching.teId,
+               tName,
+               tExpect,
+               tContent,
+               file.fUid,
+               file.fPath,
+               file.fName,
+               tState
+        from teaching,
+
+             file
+        where file.fId = teaching.tFile
+          and fPath LIKE '%.%'
+        order by teaching.teId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+
+
+    <select id="findTeachingById" resultMap="teachingMap">
+        select teaching.teId,
+               tName,
+               tExpect,
+               tContent,
+               file.fName,
+               file.fPath,
+               file.fUid,
+               tState
+        from teaching,
+             file
+        where file.fId = teaching.tFile
+          and teaching.teId = #{teId}
+          and fPath LIKE '%.%'
+    </select>
+
+    <update id="updateTeaching">
+        update teaching
+        set tName = #{tName},
+        tExpect = #{tExpect},
+        tContent = #{tContent}
+        <if test="tFile != 0">
+            ,
+            tFile = #{tFile}
+        </if>
+        where teId = #{teId}
+    </update>
+
+    <select id="viewFileTeId" resultMap="teachingMap">
+        select fPath,
+               fName,
+               fUid
+        from file
+        where fUid = #{fUid}
+          and fPath LIKE '%.%'
+    </select>
+
+
+    <select id="countTeachingTUserId" resultType="java.lang.Integer">
+        select count(*)
+        from teaching
+        where tUser = #{tUser}
+
+    </select>
+    <select id="findAllTeachingListTUserId" resultMap="teachingMap">
+        select teaching.teId,
+               tName,
+               tExpect,
+               tContent,
+               file.fUid,
+               file.fPath,
+               file.fName,
+               tState
+        from teaching,
+             file
+        where file.fId = teaching.tFile
+          and fPath LIKE '%.%'
+          and tUser = #{tUser}
+        order by teaching.teId asc
+            limit #{startIndex}, #{pageSize}
+
+    </select>
+
+
+    <update id="updateTeachingState">
+        update teaching
+        set tState = #{tState}
+        where teId = #{teId}
+    </update>
+
+
+</mapper>

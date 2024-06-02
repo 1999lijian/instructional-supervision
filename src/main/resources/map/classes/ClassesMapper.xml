@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.classes.ClassesMapper">
+
+    <resultMap id="classStMap" type="com.L.entity.classes.ClassST">
+        <id property="cIId" column="cIId"></id>
+        <result property="cIName" column="cIName"></result>
+    </resultMap>
+
+    <resultMap id="ClassStudentCourseMap" type="com.L.entity.classes.ClassStudentCourse">
+        <result property="ccId" column="ccId"></result>
+        <result property="cIIdcc" column="cIIdcc"></result>
+        <result property="sIdcc" column="sIdcc"></result>
+
+        <association property="course" javaType="com.L.entity.course.Course">
+            <id property="cId" column="cId"></id>
+            <result property="cName" column="cName"></result>
+            <result property="cCredit" column="cCredit"></result>
+            <result property="cTeacherId" column="cTeacherId"></result>
+            <result property="cClassRoom" column="cClassRoom"></result>
+            <result property="cTimeStart" column="cTimeStart"></result>
+            <result property="cTimeEnd" column="cTimeEnd"></result>
+        </association>
+    </resultMap>
+
+
+    <resultMap id="roomMap" type="com.L.entity.general.Room">
+        <id property="roomId" column="roomId"></id>
+        <result property="classRoom" column="classRoom"></result>
+    </resultMap>
+
+    <resultMap id="ClassStudentMap" type="com.L.entity.classes.ClassStudent">
+        <id property="scId" column="scId"></id>
+        <result property="cIIdsc" column="cIIdsc"></result>
+        <result property="sIdsc" column="sIdsc"></result>
+    </resultMap>
+
+
+    <insert id="addClassStudentCourse">
+        insert into class_course(cIIdcc, sIdcc)
+        values (#{cIIdcc}, #{sIdcc})
+
+    </insert>
+    <insert id="addRoom">
+        insert
+        into room(classRoom)
+        values (#{classRoom})
+
+    </insert>
+    <insert id="addClasses">
+        insert
+        into classst(cIName)
+        values (#{cIName})
+    </insert>
+    <insert id="addClassStudent">
+        insert
+        into class_student(cIIdsc, sIdsc)
+        values (#{cIIdsc}, #{sIdsc})
+    </insert>
+    <update id="updateRoom">
+        update room
+        set classRoom=#{classRoom}
+        where roomId = #{roomId}
+    </update>
+    <update id="updateClassST">
+        update classst
+        set cIName=#{cIName}
+        where cIId = #{cIId}
+    </update>
+    <delete id="deleteRoom">
+        delete
+        from room
+        where roomId = #{roomId}
+    </delete>
+    <delete id="deleteClass">
+        delete
+        from classst
+        where CIId = #{CIId}
+    </delete>
+
+    <delete id="deleteClassStudent">
+        delete
+        from class_student
+        where cIIdsc = #{CIId}
+    </delete>
+
+    <delete id="deleteClassCourse">
+        delete
+        from class_course
+        where cIIdcc = #{CIId}
+    </delete>
+
+
+    <select id="countClasses" resultType="java.lang.Integer">
+
+        select count(*)
+        from classst
+
+    </select>
+    <select id="countClassesAll" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM classst
+        WHERE cIName LIKE CONCAT('%', #{cIName}, '%')
+
+    </select>
+    <select id="findAllClassesList" resultType="com.L.entity.classes.ClassST">
+        select *
+        from classst
+        order by cIId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+    <select id="findAllRoomList" resultType="com.L.entity.general.Room">
+
+        select *
+        from room
+        order by roomId asc
+            limit #{startIndex}, #{pageSize}
+
+    </select>
+    <select id="countRoom" resultType="java.lang.Integer">
+        select count(*)
+        from room
+
+    </select>
+    <select id="findClassesByCIName" resultType="com.L.entity.classes.ClassST">
+        select *
+        from classst
+        where cIId = #{cIId}
+
+    </select>
+
+
+    <select id="findClassesByClassStudentCourse" resultMap="ClassStudentCourseMap">
+        select *
+        from class_course
+        where class_course.cIIdcc = #{CIId}
+    </select>
+    <select id="findClassesByClassStudentCourseP" resultType="java.lang.String">
+        select *
+        from class_course
+        where class_course.cIIdcc = #{CIId}
+    </select>
+    <select id="findRoomByRId" resultType="com.L.entity.general.Room">
+        select *
+        from room
+        where roomId = #{roomId}
+
+    </select>
+
+    <select id="findClassesByCINameId" resultType="java.lang.Integer">
+        select cIId
+        from classst
+        where cIName = #{cIName}
+    </select>
+
+
+</mapper>

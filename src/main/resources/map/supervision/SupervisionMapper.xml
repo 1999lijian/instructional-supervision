@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.supervision.SupervisionMapper">
+
+    <resultMap id="supervisionMap" type="com.L.entity.supervision.Supervision">
+        <id property="supId" column="supId"></id>
+        <result property="supName" column="supName"></result>
+        <result property="ask" column="ask"></result>
+        <result property="supTimeStart" column="supTimeStart"></result>
+        <result property="supTimeEnd" column="supTimeEnd"></result>
+        <result property="supFile" column="supFile"></result>
+
+
+        <association property="supervisionFileSava" javaType="com.L.entity.util.File">
+            <result property="fId" column="fId"></result>
+            <result property="fName" column="fName"></result>
+            <result property="fUid" column="fUid"></result>
+            <result property="fPath" column="fPath"></result>
+        </association>
+    </resultMap>
+
+    <insert id="savaFileSupervision">
+
+        INSERT INTO file (fName, fUid, fPath)
+        VALUES (#{fName}, #{fUid}, #{fPath})
+    </insert>
+
+    <insert id="addSupervision">
+
+        INSERT INTO supervision (supName, supTimeStart, supTimeEnd, supFile, ask)
+        VALUES (#{supName}, #{supTimeStart}, #{supTimeEnd}, (SELECT LAST_INSERT_ID()), #{ask})
+
+    </insert>
+    <delete id="deleteSupervision">
+
+
+        delete
+        from supervision
+        where supId = #{supId}
+    </delete>
+
+
+    <select id="countSupervision" resultType="java.lang.Integer">
+
+        select count(*)
+        from supervision
+    </select>
+    <select id="countSupervisionAll" resultType="java.lang.Integer">
+
+        SELECT COUNT(*)
+        FROM supervision
+        WHERE supName LIKE CONCAT('%', #{supName}, '%')  </select>
+
+    <select id="findAllSupervisionList" resultMap="supervisionMap">
+        select *
+        from supervision,
+             file
+        where file.fId = supervision.supFile
+          and fPath LIKE '%.%'
+        order by supervision.supId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+
+
+    <select id="findSupervisionById" resultMap="supervisionMap">
+        select *
+        from supervision,
+             file
+        where file.fId = supervision.supFile
+          and supervision.supId = #{supId}
+          and fPath LIKE '%.%'
+    </select>
+
+
+    <!--    supName, supTimeStart, supTimeEnd, supFile, ask  -->
+    <update id="updateSupervision">
+        update supervision
+        set supName      = #{supName},
+            supTimeStart = #{supTimeStart},
+            supTimeEnd   = #{supTimeEnd},
+            ask          = #{ask}
+        where supId = #{supId}
+    </update>
+    <select id="viewFileSuId" resultMap="supervisionMap">
+        select fPath,
+               fName,
+               fUid
+        from file
+        where fUid = #{fUid}
+          and fPath LIKE '%.%'
+    </select>
+
+
+</mapper>

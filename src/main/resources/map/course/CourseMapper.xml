@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.course.CourseMapper">
+
+    <resultMap id="courseMap" type="com.L.entity.course.Course">
+        <id property="cId" column="cId"></id>
+        <result property="cName" column="cName"></result>
+        <result property="cCredit" column="cCredit"></result>
+        <result property="cTeacherId" column="cTeacherId"></result>
+        <result property="cClassRoom" column="cClassRoom"></result>
+        <result property="cTimeStart" column="cTimeStart"></result>
+        <result property="cTimeEnd" column="cTimeEnd"></result>
+
+
+        <association property="cRoom" javaType="com.L.entity.general.Room">
+            <result property="roomId" column="roomId"></result>
+            <result property="classRoom" column="classRoom"></result>
+        </association>
+
+
+        <association property="tUser" javaType="com.L.entity.user.TUser">
+            <id property="tId" column="tId"></id>
+            <result property="tuid" column="tuid"></result>
+            <result property="tName" column="tName"></result>
+            <result property="tSex" column="tSex"></result>
+
+            <result property="tTitle" column="tTitle"></result>
+            <result property="tCollegeNo" column="tCollegeNo"></result>
+            <result property="tPhone" column="tPhone"></result>
+            <result property="tEmail" column="tEmail"></result>
+            <result property="tQQ" column="tQQ"></result>
+            <result property="tNotes" column="tNotes"></result>
+        </association>
+
+
+        <association property="evaluationRecords" javaType="com.L.entity.course.EvaluationRecords">
+            <result property="evaluationId" column="evaluationId"></result>
+            <result property="evaluationCourse" column="evaluationCourse"></result>
+            <result property="evaluationScore" column="evaluationScore"></result>
+            <result property="evaluationOption" column="evaluationOption"></result>
+            <result property="evaluationUser" column="evaluationUser"></result>
+        </association>
+
+        <association property="option" javaType="com.L.entity.course.Option">
+            <result property="optionId" column="optionId"></result>
+            <result property="optionName" column="optionName"></result>
+            <result property="scoreById" column="scoreById"></result>
+
+        </association>
+        <association property="score" javaType="com.L.entity.course.Score">
+            <result property="scoreId" column="scoreId"></result>
+            <result property="scoreName" column="scoreName"></result>
+        </association>
+
+
+    </resultMap>
+
+    <resultMap id="EvaluationRecordsMap" type="com.L.entity.course.EvaluationRecords">
+        <result property="evaluationId" column="evaluationId"></result>
+        <result property="evaluationCourse" column="evaluationCourse"></result>
+        <result property="evaluationScore" column="evaluationScore"></result>
+        <result property="evaluationOption" column="evaluationOption"></result>
+        <result property="evaluationUser" column="evaluationUser"></result>
+    </resultMap>
+
+
+    <resultMap id="MessageMap" type="com.L.entity.course.Message">
+        <result property="messageId" column="messageId"></result>
+        <result property="messageName" column="messageName"></result>
+        <result property="messageCourseId" column="messageCourseId"></result>
+        <result property="messageUserId" column="messageUserId"></result>
+        <result property="messageState" column="messageState"></result>
+
+        <association property="courseList" javaType="com.L.entity.course.Course">
+            <id property="cId" column="cId"></id>
+            <result property="cName" column="cName"></result>
+            <result property="cCredit" column="cCredit"></result>
+            <result property="cTeacherId" column="cTeacherId"></result>
+            <result property="cClassRoom" column="cClassRoom"></result>
+            <result property="cTimeStart" column="cTimeStart"></result>
+            <result property="cTimeEnd" column="cTimeEnd"></result>
+        </association>
+    </resultMap>
+
+
+    <resultMap id="MessageReplyMap" type="com.L.entity.course.MessageReply">
+        <result property="replyId" column="replyId"></result>
+        <result property="messageReply" column="messageReply"></result>
+        <result property="messageReplyId" column="messageReplyId"></result>
+    </resultMap>
+
+    <resultMap id="TourClassMap" type="com.L.entity.course.TourClass">
+        <result property="tourClassId" column="tourClassId"></result>
+        <result property="tourClassUser" column="tourClassUser"></result>
+        <result property="tourClassCourse" column="tourClassCourse"></result>
+        <result property="tourClassDiscipline" column="tourClassDiscipline"></result>
+        <result property="tourClassContent" column="tourClassContent"></result>
+        <result property="tourClassTime" column="tourClassTime"></result>
+        <result property="tourClassPhoto" column="tourClassPhoto"></result>
+
+        <association property="courseTourClass" javaType="com.L.entity.course.Course">
+            <id property="cId" column="cId"></id>
+            <result property="cName" column="cName"></result>
+            <result property="cCredit" column="cCredit"></result>
+            <result property="cTeacherId" column="cTeacherId"></result>
+            <result property="cClassRoom" column="cClassRoom"></result>
+            <result property="cTimeStart" column="cTimeStart"></result>
+            <result property="cTimeEnd" column="cTimeEnd"></result>
+        </association>
+
+        <association property="fileTourClass" javaType="com.L.entity.util.File">
+            <result property="fId" column="fId"></result>
+            <result property="fName" column="fName"></result>
+            <result property="fUid" column="fUid"></result>
+            <result property="fPath" column="fPath"></result>
+        </association>
+
+    </resultMap>
+
+
+    <insert id="savaFileTourClass">
+        INSERT INTO file (fName, fUid, fPath)
+        VALUES (#{fName}, #{fUid}, #{fPath})
+    </insert>
+
+
+    <insert id="AddCourseTourClass">
+
+        INSERT INTO tourClass (tourClassCourse, tourClassDiscipline, tourClassContent, tourClassTime, tourClassPhoto)
+        VALUES (#{tourClassCourse}, #{tourClassDiscipline}, #{tourClassContent}, #{tourClassTime},
+                (SELECT LAST_INSERT_ID()))
+
+    </insert>
+
+
+    <insert id="SaveCourseEvaluateById" parameterType="java.util.List">
+
+        INSERT INTO evaluationRecords (evaluationCourse , evaluationScore, evaluationOption,evaluationUser)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.evaluationCourse}, #{item.evaluationScore}, #{item.evaluationOption},#{item.evaluationUser})
+        </foreach>
+
+    </insert>
+
+    <select id="checkCourseEvaluateById" resultType="int">
+        select count(*)
+        from evaluationRecords
+        where evaluationCourse = #{evaluationCourse}
+          and evaluationUser = #{evaluationUser}
+
+    </select>
+
+
+    <update id="updateCourseDate">
+
+        update course
+
+        set cName      = #{cName},
+            cCredit    = #{cCredit},
+            cTeacherId = #{cTeacherId},
+            cTimeStart = #{cTimeStart},
+            cTimeEnd   = #{cTimeEnd},
+            cClassRoom = #{cClassRoom}
+
+        where cId = #{cId}
+    </update>
+
+
+    <update id="UpCourseEvaluateById">
+        UPDATE evaluationrecords
+        <set>
+            evaluationOption = #{evaluationOption}
+        </set>
+        WHERE evaluationCourse = #{evaluationCourse}
+        AND evaluationUser = #{evaluationUser}
+        AND evaluationScore = #{evaluationScore}
+    </update>
+
+    <update id="UpCourseListen">
+        update listencords
+        set listencordsList = #{listencordsList}
+        where listencordsCords = #{listencordsCords}
+          and listencordsUserId = #{listencordsUserId}
+
+    </update>
+    <update id="UpMessage">
+        update message
+        set messageName = #{messageName}
+        where messageId = #{messageId}
+    </update>
+    <update id="UpMessageReply">
+        update message
+        set messageState = #{messageState}
+        where messageId = #{messageId}
+
+    </update>
+
+    <delete id="deletCourse">
+        DELETE
+        FROM course
+        WHERE cId = #{cId}
+    </delete>
+    <delete id="DeleteMessage">
+        DELETE
+        FROM message
+        WHERE messageId = #{messageId}
+    </delete>
+
+    <insert id="addCourse">
+
+        INSERT INTO course (cName, cCredit, cTeacherId, cTimeStart, cTimeEnd, cClassRoom)
+        VALUES (#{cName}, #{cCredit}, #{cTeacherId}, #{cTimeStart}, #{cTimeEnd}, #{cClassRoom})
+
+    </insert>
+
+
+    <insert id="SaveCourseListen">
+        insert into listencords (listencordsUserId, listencordsCords, listencordsList)
+        values (#{listencordsUserId}, #{listencordsCords}, #{listencordsList})
+    </insert>
+    <insert id="SaveMessage">
+        insert into message (messageId, messageName, messageCourseId, messageUserId)
+        values (#{messageId}, #{messageName}, #{messageCourseId}, #{messageUserId})
+
+    </insert>
+    <insert id="SaveMessageReply">
+        insert into message_reply (messageReply, messageReplyId)
+        values (#{messageReply}, #{messageReplyId})
+    </insert>
+
+    <select id="updateCourse" resultMap="courseMap">
+        select course.cId, cName, cCredit, t_user.tName, room.classRoom, cTimeStart, cTimeEnd
+        from course,
+             t_user,
+             room
+        where t_user.tId = course.cTeacherId
+          and room.roomId = course.cClassRoom
+          and course.cId = #{cId}
+    </select>
+
+
+    <select id="findAllCourseList" resultMap="courseMap">
+        select course.cId, cName, cCredit, t_user.tName, room.classRoom, cTimeStart, cTimeEnd
+        from course,
+             t_user,
+             room
+        where t_user.tId = course.cTeacherId
+          and room.roomId = course.cClassRoom
+        order by course.cId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+
+
+    <select id="countCourse" resultType="java.lang.Integer">
+
+        select count(*)
+        from course
+    </select>
+    <select id="countCourseAll" resultType="java.lang.Integer">
+
+        SELECT COUNT(*)
+        FROM course
+        WHERE cName LIKE CONCAT('%', #{cName}, '%')  </select>
+
+
+    <select id="findAllScore" resultType="com.L.entity.course.Score">
+        select *
+        from score
+    </select>
+    <select id="findOption_ScoreById" resultType="com.L.entity.course.Option">
+
+        SELECT *
+        FROM t_option
+
+    </select>
+    <!--
+      JOIN 是用于将两个或多个表基于它们之间的关联条件进行连接的操作
+     通过这种连接操作，您可以在查询结果中获取来自不同表的数据，同时根据这些表之间的关联条件进行匹配
+     -->
+    <select id="findAllCourseListBelong" resultMap="courseMap">
+
+        select course.cId, cName, cCredit, t_user.tName, room.classRoom, cTimeStart, cTimeEnd
+        FROM course
+                 JOIN class_course cc ON course.cId = cc.sIdcc
+                 JOIN class_student cs ON cs.cIIdsc = cc.cIIdcc
+                 JOIN s_user u ON cs.sIdsc = u.sId
+                 JOIN t_user ON course.cTeacherId = t_user.tId
+                 JOIN room ON course.cClassRoom = room.roomId
+        where u.suid = #{suid}
+        order by course.cId asc
+            LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+
+    <select id="countCourseBelong" resultType="java.lang.Integer">
+
+        select count(*)
+        FROM course
+                 JOIN class_course cc ON course.cId = cc.sIdcc
+                 JOIN class_student cs ON cs.cIIdsc = cc.cIIdcc
+                 JOIN s_user u ON cs.sIdsc = u.sId
+        where u.suid = #{suid}
+    </select>
+    <select id="checkRole" resultType="java.lang.Integer">
+        select uRoleNo
+        from u_user
+        where uId = #{uid}
+    </select>
+    <select id="getCourseName" resultMap="courseMap">
+        select course.cName, score.scoreName, t_option.optionName
+        from course
+                 join evaluationrecords on course.cId = evaluationrecords.evaluationCourse
+                 join score on evaluationrecords.evaluationScore = score.scoreId
+                 join t_option on evaluationrecords.evaluationOption = t_option.optionId
+                 join u_user on evaluationrecords.evaluationUser = u_user.uId and
+                                u_user.uRoleNo = 4
+        where course.cId = #{cId}
+    </select>
+    <select id="findAllTeacher" resultType="com.L.entity.user.TUser">
+
+        select *
+        from t_user
+    </select>
+    <select id="findAllCourseListTeacherList" resultMap="courseMap">
+
+        select course.cId, cName, cCredit, t_user.tName, room.classRoom, cTimeStart, cTimeEnd
+        FROM course
+                 JOIN t_user ON course.cTeacherId = t_user.tId
+                 JOIN room ON course.cClassRoom = room.roomId
+        where t_user.tuid = #{tuid}
+
+    </select>
+
+
+    <select id="findAllCourseListTeacher" resultType="java.lang.Integer">
+        select count(*)
+        FROM course
+                 JOIN t_user t ON course.cTeacherId = t.tId
+                 JOIN room ON course.cClassRoom = room.roomId
+        where t.tuid = #{tuid}
+    </select>
+    <select id="findCourseName" resultType="com.L.entity.course.Course">
+        select cId,
+               cName
+        from course
+    </select>
+    <select id="findEvaluationRecordsById" resultType="com.L.entity.course.EvaluationRecords">
+        select *
+        from evaluationrecords
+
+        where evaluationrecords.evaluationUser = #{evaluationUser}
+          and evaluationrecords.evaluationCourse = #{evaluationCourse}
+
+    </select>
+    <select id="findCourseListen" resultType="java.lang.Integer">
+
+        select count(*)
+        from listencords
+        where listencordsUserId = #{listencordsUserId}
+          and listencordsCords = #{listencordsCords}
+
+    </select>
+    <select id="checkCourseEvaluateByTId" resultType="java.lang.Integer">
+        select count(*)
+        from evaluationRecords
+        where evaluationCourse = #{evaluationCourse}
+
+    </select>
+    <select id="findCourseListenDate" resultType="com.L.entity.course.Listencords">
+        select *
+        from listencords
+        where listencordsUserId = #{listencordsUserId}
+          and listencordsCords = #{listencordsCords}
+
+    </select>
+    <select id="findCourseListenT" resultType="java.lang.Integer">
+
+        select count(*)
+        from listencords
+        where listencordsCords = #{listencordsCords}
+
+    </select>
+    <select id="findCourseListenVC" resultType="com.L.entity.course.Listencords">
+
+        select *
+        from listencords
+        where listencordsCords = #{listencordsCords}
+
+    </select>
+    <select id="findAllRoomId" resultType="com.L.entity.general.Room">
+
+        select *
+        from room
+    </select>
+    <select id="findMessage" resultMap="MessageMap">
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+        where message.messageUserId = #{messageUserId}
+
+        order by message.messageId asc
+            LIMIT #{startIndex}, #{pageSize}
+
+    </select>
+    <select id="countMessageUserIdAll" resultType="java.lang.Integer">
+        select count(*)
+        from message
+        where message.messageUserId = #{messageUserId}
+
+    </select>
+    <select id="findMessageId" resultMap="MessageMap">
+
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+        where message.messageId = #{messageId}
+
+
+    </select>
+    <select id="countMessageCourseIdAll" resultType="java.lang.Integer">
+        select count(*)
+        from message
+           , t_user
+           , course
+        where message.messageCourseId = course.cId
+          and t_user.tId = course.cTeacherId
+          and t_user.tuid = #{uId}
+
+
+    </select>
+    <select id="findMessageCourseId" resultMap="MessageMap">
+        select *
+        from message
+           , t_user
+           , course
+        where message.messageCourseId = course.cId
+          and t_user.tId = course.cTeacherId
+          and t_user.tuid = #{uId}
+        order by message.messageId asc
+            LIMIT #{startIndex}, #{pageSize}
+
+    </select>
+    <select id="countMessageAll" resultType="java.lang.Integer">
+        select count(*)
+        from message
+
+    </select>
+    <select id="findMessageIdAll" resultMap="MessageMap">
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+        order by message.messageId asc
+            LIMIT #{startIndex}, #{pageSize}
+    </select>
+    <select id="findMessageList" resultMap="MessageMap">
+
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+    </select>
+
+    <select id="findMessageListUid" resultMap="MessageMap">
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+                 join
+             t_user on t_user.tId = course.cTeacherId
+        where t_user.tuid = #{uId}
+
+    </select>
+
+    <select id="findMessageListUidSUser" resultMap="MessageMap">
+        select *
+        from message
+                 join course on
+            message.messageCourseId = course.cId
+        where message.messageUserId = #{uId}
+
+    </select>
+
+
+    <select id="findStatisticsSUserEvaluateAll" resultType="java.lang.Integer">
+        select count(class_student.scId)
+        from class_student
+                 join class_course on class_student.cIIdsc = class_course.cIIdcc
+        where class_course.sIdcc = #{cId}
+    </select>
+    <select id="findStatisticsSUserEvaluateReviewed" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT evaluationUser)
+        FROM evaluationrecords
+        WHERE evaluationCourse = #{cId}
+    </select>
+    <select id="findMessageReplyAll" resultType="java.lang.Integer">
+
+        select count(messageReplyId)
+        from message_reply
+        where messageReplyId = #{messageId}
+    </select>
+    <select id="findMessageReplyId" resultType="com.L.entity.course.MessageReply">
+        select *
+        from message_reply
+        where messageReplyId = #{messageId}
+    </select>
+    <select id="countCourseTourList" resultType="java.lang.Integer">
+        select count(*)
+        from tourclass
+        where tourClassCourse = #{tourClassCourse}
+    </select>
+    <select id="findCourseTourList" resultMap="TourClassMap">
+        select *
+        from tourclass
+                 join course on tourclass.tourClassCourse = course.cId
+                 join file on tourclass.tourClassPhoto = file.fId
+        where tourClassCourse = #{tourClassCourse}
+        order by tourclass.tourClassTime asc
+            LIMIT #{startIndex}, #{pageSize}
+    </select>
+    <select id="checkCourseTourList" resultType="java.lang.Integer">
+        select count(*)
+        from tourclass
+        where tourClassCourse = #{tourClassCourse}
+
+    </select>
+
+
+</mapper>

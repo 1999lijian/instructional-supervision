@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.user.TUserMapper">
+
+    <resultMap id="TUserMap" type="com.L.entity.user.TUser">
+        <id property="tId" column="tId"></id>
+        <result property="tuid" column="tuid"></result>
+        <result property="tName" column="tName"></result>
+        <result property="tSex" column="tSex"></result>
+
+        <result property="tTitle" column="tTitle"></result>
+        <result property="tCollegeNo" column="tCollegeNo"></result>
+        <result property="tPhone" column="tPhone"></result>
+        <result property="tEmail" column="tEmail"></result>
+        <result property="tQQ" column="tQQ"></result>
+        <result property="tNotes" column="tNotes"></result>
+
+        <association property="uUser" javaType="com.L.entity.user.UUser">
+            <id property="uId" column="uId"></id>
+            <result property="uName" column="uName"></result>
+            <result property="uPassword" column="uPassword"></result>
+            <result property="uRoleNo" column="uRoleNo"></result>
+        </association>
+
+        <association property="collegeTU" javaType="com.L.entity.general.College">
+            <id property="collegeId" column="collegeId"></id>
+            <result property="collegeName" column="collegeName"></result>
+        </association>
+
+    </resultMap>
+
+
+    <update id="updateTUser">
+
+        update t_user,
+            u_user
+        set
+            uPassword=#{uUser.uPassword},
+            tName=#{tName}, tSex=#{tSex}, tTitle=#{tTitle},
+            tCollegeNo=#{tCollegeNo}, tPhone=#{tPhone}, tEmail=#{tEmail}, tQQ=#{tQQ}, tNotes=#{tNotes}
+        where u_user.uId = #{tuid}
+          and tId=#{tId}
+
+    </update>
+
+
+    <select id="updateTUserId" resultMap="TUserMap">
+        select *
+        from t_user,
+             u_user
+        where t_user.tuid = u_user.uId
+          and t_user.tid = #{tid}
+
+    </select>
+
+    <!--  SELECT LAST_INSERT_ID()  获取最后插入的数据的自增主键值  -->
+    <insert id="addTUser">
+        INSERT INTO t_user (tuid, tName, tSex, tTitle, tCollegeNo, tPhone, tEmail, tQQ, tNotes)
+        VALUES ((SELECT LAST_INSERT_ID()), #{tName}, #{tSex},
+                #{tTitle}, #{tCollegeNo}, #{tPhone}, #{tEmail},
+                #{tQQ}, #{tNotes})
+    </insert>
+
+    <insert id="addAll">
+        INSERT INTO u_user (uName, uPassword, uRoleNo)
+        VALUES (#{uName}, #{uPassword}, #{uRoleNo})
+    </insert>
+
+
+    <!--      INNER JOIN : 用于将两个表中的匹配行连接在一起。
+    它根据两个表之间的共同列进行连接，并返回满足连接条件的结果集。  -->
+    <delete id="deleteTUserId">
+
+        delete
+        t_user,u_user
+        from t_user
+        INNER JOIN u_user ON tuid = uId
+        where tId =
+        #{tId}
+
+    </delete>
+
+    <!--  count(*): 用于计算指定表中的行数。它返回一个表示表中行数的整数值-->
+    <select id="countTUser" resultType="java.lang.Integer">
+
+        select count(*)
+        from t_user
+    </select>
+
+
+    <select id="countTUserAll" resultType="java.lang.Integer">
+
+        SELECT COUNT(*)
+        FROM t_user
+        WHERE tName LIKE CONCAT('%', #{tName}, '%')  </select>
+
+
+    <!--
+    order by uid asc: 用于按照 "uid" 列的值升序对结果集进行排序
+      limit : 限制结果集返回的行数的关键字
+    -->
+    <select id="findAllTUserList" resultMap="TUserMap">
+        select tId,
+               uPassword,
+               tName,
+               tSex,
+               tTitle,
+               college.collegeName,
+               tPhone,
+               tEmail,
+               tQQ,
+               tNotes
+        from t_user,
+             u_user,
+             college
+        where uId = tuid
+          and t_user.tCollegeNo = college.collegeId
+        order by uId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="findAllCollege" resultType="com.L.entity.general.College">
+        select *
+        from college
+    </select>
+
+</mapper>

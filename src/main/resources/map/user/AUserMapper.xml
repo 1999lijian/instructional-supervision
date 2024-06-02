@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.user.AUserMapper">
+
+    <resultMap id="AUserMap" type="com.L.entity.user.AUser">
+        <id property="aId" column="aId"></id>
+        <result property="auid" column="auid"></result>
+        <result property="aName" column="aName"></result>
+        <result property="aPhone" column="aPhone"></result>
+        <result property="aEmail" column="aEmail"></result>
+        <result property="aQQ" column="aQQ"></result>
+        <result property="aNotes" column="aNotes"></result>
+
+        <association property="uUser" javaType="com.L.entity.user.UUser">
+            <id property="uId" column="uId"></id>
+            <result property="uName" column="uName"></result>
+            <result property="uPassword" column="uPassword"></result>
+            <result property="uRoleNo" column="uRoleNo"></result>
+        </association>
+    </resultMap>
+
+
+    <update id="updateAUser">
+
+        update a_user,
+            u_user
+        set
+            uPassword=#{uUser.uPassword},
+            aName=#{aName},
+            aPhone=#{aPhone},
+            aEmail=#{aEmail},
+            aQQ=#{aQQ},
+            aNotes=#{aNotes}
+        where u_user.uId = #{auid}
+          and aId=#{aId}
+
+    </update>
+
+
+    <select id="updateAUserId" resultMap="AUserMap">
+        select *
+        from a_user,
+             u_user
+        where a_user.auid = u_user.uId
+          and a_user.aid = #{aid}
+
+    </select>
+
+    <!--  SELECT LAST_INSERT_ID()  获取最后插入的数据的自增主键值  -->
+    <insert id="addAUser">
+        INSERT INTO a_user (auid, aName, aPhone, aEmail, aQQ, aNotes)
+        VALUES ((SELECT LAST_INSERT_ID()), #{aName}, #{aPhone}, #{aEmail}, #{aQQ}, #{aNotes});
+    </insert>
+
+    <insert id="addAll">
+        INSERT INTO u_user (uName, uPassword, uRoleNo)
+        VALUES (#{uName}, #{uPassword}, #{uRoleNo})
+    </insert>
+
+
+    <!--      INNER JOIN : 用于将两个表中的匹配行连接在一起。
+    它根据两个表之间的共同列进行连接，并返回满足连接条件的结果集。  -->
+    <delete id="deleteAUserId">
+
+        delete
+        a_user,u_user
+        from a_user
+        INNER JOIN u_user ON auid = uId
+        where aId =
+        #{aId}
+
+    </delete>
+
+    <!--  count(*): 用于计算指定表中的行数。它返回一个表示表中行数的整数值-->
+    <select id="countAUser" resultType="java.lang.Integer">
+
+        select count(*)
+        from a_user
+    </select>
+
+
+    <select id="countAUserAll" resultType="java.lang.Integer">
+
+        SELECT COUNT(*)
+        FROM a_user
+        WHERE aName LIKE CONCAT('%', #{aName}, '%')  </select>
+
+    <!--
+    order by uid asc: 用于按照 "uid" 列的值升序对结果集进行排序
+      limit : 限制结果集返回的行数的关键字
+    -->
+    <select id="findAllAUserList" resultMap="AUserMap">
+        select aId,
+               uPassword,
+               aName,
+               aPhone,
+               aEmail,
+               aQQ,
+               aNotes
+        from a_user,
+             u_user
+        where uId = auid
+        order by uId asc
+            limit #{startIndex}, #{pageSize}
+    </select>
+
+
+</mapper>

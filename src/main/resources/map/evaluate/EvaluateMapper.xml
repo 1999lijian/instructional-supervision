@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.L.mapper.evaluate.EvaluateMapper">
+
+    <resultMap id="optionMap" type="com.L.entity.course.Option">
+
+        <result property="optionId" column="optionId"></result>
+        <result property="optionName" column="optionName"></result>
+        <result property="scoreById" column="scoreById"></result>
+
+        <association property="scores" javaType="com.L.entity.course.Score">
+            <result property="scoreId" column="scoreId"></result>
+            <result property="scoreName" column="scoreName"></result>
+        </association>
+
+    </resultMap>
+    <insert id="addScore" useGeneratedKeys="true" keyProperty="scoreId">
+        INSERT INTO score (scoreName)
+        VALUES (#{scoreName})
+    </insert>
+    <insert id="addOption">
+        INSERT INTO t_option (optionName, scoreById)
+        VALUES (#{optionName}, #{scoreById})
+    </insert>
+
+
+    <update id="updateOptionById">
+        UPDATE
+            t_option
+        SET optionName = #{optionName}
+        where optionId = #{optionId}
+
+    </update>
+    <delete id="deleteOption">
+        DELETE
+        FROM t_option
+        where optionId = #{optionId}
+
+    </delete>
+    <select id="countScore" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM t_option
+
+    </select>
+    <select id="countScoreAll" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM t_option
+        WHERE optionName LIKE CONCAT('%', #{optionName}, '%')
+
+    </select>
+    <select id="findAllScore" resultMap="optionMap">
+        SELECT s.scoreId, s.scoreName, o.optionId, o.optionName, o.scoreById
+        FROM score s
+                 JOIN t_option o ON s.scoreId = o.scoreById
+        ORDER BY s.scoreId, o.optionId asc
+            LIMIT #{startIndex}, #{pageSize}
+    </select>
+    <select id="findOptionById" resultMap="optionMap">
+        select *
+        from t_option
+                 JOIN score ON score.scoreId = t_option.scoreById
+        where optionId = #{optionId}
+
+    </select>
+    <select id="findScoreByName" resultType="com.L.entity.course.Score">
+        select *
+        from score
+    </select>
+
+
+</mapper>

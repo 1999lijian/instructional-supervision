@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       https://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       https://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd
+">
+
+    <!--    关联数据文件-->
+    <context:property-placeholder location="classpath:database.properties"></context:property-placeholder>
+
+    <!--    配置数据库连接池-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!--        关联数据库连接池属性 -->
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdb.username}"></property>
+        <property name="password" value="${jdb.password}"></property>
+        <!--        c3p0 配置-->
+        <!--        最大连接池 和 最小连接池 -->
+        <property name="maxPoolSize" value="30"></property>
+        <property name="minPoolSize" value="10"></property>
+    </bean>
+
+
+    <!--    配置sqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--        注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource"></property>
+
+        <!--        配置mybatis文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <!--        指定mybatis映射文件-->
+        <property name="mapperLocations" value="classpath:map/**/**/*.xml"></property>
+
+    </bean>
+
+    <!--    扫描mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--        注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <property name="basePackage" value="com.L.mapper"></property>
+    </bean>
+
+    <!--    扫描service 使注解生效-->
+    <context:component-scan base-package="com.L.service"></context:component-scan>
+
+    <!--    事务 -->
+    <bean id="txManage" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--    配置事务的通知-->
+    <tx:advice id="txAdvice" transaction-manager="txManage">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--配置aop事务-->
+    <aop:config>
+        <aop:pointcut id="txPointcut" expression="execution(* com.L.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"></aop:advisor>
+    </aop:config>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 设置文件上传的最大大小 -->
+        <property name="maxUploadSize" value="20971520"/> <!-- 10MB -->
+    </bean>
+
+
+</beans>
