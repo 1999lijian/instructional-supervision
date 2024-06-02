@@ -1,0 +1,8 @@
+/*输入提示样式*/
+.form {
+    margin-bottom: 15px;
+}
+
+.error {
+    color: red;
+}

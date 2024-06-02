@@ -1,0 +1,63 @@
+/* 图像为圆形 */
+.login-icon {
+    border-radius: 50%;
+}
+
+
+/* 用户按钮阴影 浮动效果取消 */
+.username-btn,
+.username-btn:focus,
+.username-btn:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+.pagination {
+    margin: 0;
+}
+
+/* 下拉菜单按钮 */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 120px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 2; /* 提高下拉菜单的层叠顺序 */
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+
+.rounded-div {
+    border-radius: 10px; /* 设置圆角半径为10px，您可以根据需要调整这个值 */
+    background-color: #f8f7f7; /* 设置背景颜色 */
+    padding: 20px; /* 设置内边距 */
+    padding: 20px; /* 设置内边距 */
+    margin-top: 20px; /* 设置与上方元素的间距为20px，您可以根据需要调整这个值 */
+    height: 100%; /* 设置高度为视口高度的100% */
+
+}
+
+
+.content {
+    display: none;
+}
+
+

@@ -1,0 +1,17 @@
+/* 图像为圆形 */
+.login-icon {
+    border-radius: 50%;
+}
+
+/* 用户按钮阴影 浮动效果取消 */
+.username-btn,
+.username-btn:focus,
+.username-btn:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+
+
